@@ -3,40 +3,46 @@ require 'byebug'
 
 class KnightPathFinder
   NEXT_MOV_INCRS = [[1,2],[1,-2],[-1,2],[-1,-2],[2,1],[2,-1],[-2,1],[-2,-1]]
-  attr_reader :start_pos, :root
+  attr_reader :root_node, :visited_positions
 
   def initialize(start_pos)
-    @start_pos = start_pos
-    @root = PolyTreeNode.new(start_pos)
+    @root_node = PolyTreeNode.new(start_pos)
+    @visited_positions = [start_pos]
+    build_move_tree
   end
 
   def build_move_tree
-    past_pos = [self.start_pos]
-    node_queue = [self.root]
+    nodes_queue = [self.root_node]
 
-    until past_pos.length == 64
-      next_mov_arr = []
-      root = node_queue.shift
-      root_value = root.value
-      root_parent = root.parent
-      root_parent_value = nil if root_parent == nil
-      root_parent_value = root.parent unless root_parent == nil
 
-      NEXT_MOV_INCRS.each do |move_incr|
-        next_mov = [root_value[0] + move_incr[0], root_value[1] + move_incr[1]]
-        if ((0..7).to_a.include?(next_mov[0]) && (0..7).to_a.include?(next_mov[1]) &&
-            past_pos.include?(next_mov) == false)
-          next_mov_arr += [next_mov]
-          past_pos += [next_mov]
-        end
+    until self.visited_positions.length == 64
+      current_node = nodes_queue.shift
+      
+      next_pos_array = new_move_positions(current_node.value)
+      self.visited_positions += next_pos_array
+
+      next_pos_array.each do |next_pos|
+        child_node = PolyTreeNode.new(next_pos)
+        current_node.add_child(child_node)
+        nodes_queue.push(child_node)
       end
+    end
+  end
 
-      next_mov_arr.each do |next_pos|
-        node_queue << root.add_child(PolyTreeNode.new(next_pos))
+  def new_move_positions(pos)
+    KnightPathFinder.valid_moves(pos).select {|new_pos| !visited_positions.include?(new_pos)}
+  end
+
+  def self.valid_moves(pos)
+    possible_moves = []
+    NEXT_MOV_INCRS.each do |mov_incr|
+      new_move_pos = [pos[0] + mov_incr[0], pos[1] + mov_incr[1]]
+      if (0..7).to_a.include?(new_move_pos[0]) && (0..7).to_a.include?(new_move_pos[1])
+        possible_moves << new_move_pos
       end
     end
 
-    past_pos
+    possible_moves
   end
 
   def find_path(end_pos)
@@ -48,6 +54,10 @@ class KnightPathFinder
     end
     path.unshift(current_node.value)
   end
+
+  private
+
+  attr_writer :visited_positions
 end
 
 
