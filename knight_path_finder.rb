@@ -17,7 +17,7 @@ class KnightPathFinder
 
     until self.visited_positions.length == 64
       current_node = nodes_queue.shift
-      
+
       next_pos_array = new_move_positions(current_node.value)
       self.visited_positions += next_pos_array
 
@@ -46,7 +46,7 @@ class KnightPathFinder
   end
 
   def find_path(end_pos)
-    current_node = root.bfs(end_pos)
+    current_node = self.root_node.bfs(end_pos)
     path = []
     until current_node.parent.nil?
       path.unshift(current_node.value)
@@ -62,7 +62,7 @@ end
 
 
 if __FILE__ == $PROGRAM_NAME
-  path = KnightPathFinder.new([0,0])
+  path = KnightPathFinder.new([5,5])
   path.build_move_tree
-  p path.find_path([3,3])
+  p path.find_path([7,3])
 end
