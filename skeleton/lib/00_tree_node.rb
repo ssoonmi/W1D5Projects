@@ -3,9 +3,9 @@ require 'byebug'
 class PolyTreeNode
   attr_reader :value, :parent, :children
 
-  def initialize(value, parent=nil)
+  def initialize(value)
     @value = value
-    @parent = parent
+    @parent = nil
     @children = []
   end
 
@@ -20,6 +20,7 @@ class PolyTreeNode
 
   def add_child(child_node)
     child_node.parent = self
+    child_node
   end
 
   def remove_child(child_node)
@@ -47,9 +48,27 @@ class PolyTreeNode
       return current_node if current_node.value == target_value
       nodes_queue += current_node.children
     end
-    
+
     nil
   end
+
+  def to_s
+    return self.value if self.children.empty?
+
+    values_array = []
+    self.children.each do |child|
+      values_array << child.inspect
+    end
+
+    [self.value] + values_array
+  end
+
+  def inspect
+    self.to_s
+  end
+
+
+
 
   private
 
